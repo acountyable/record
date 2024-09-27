@@ -77,5 +77,5 @@ This document is for testing and demonstration purposes only.
 }
 
 // Usage
-const csvFilePath = "data/csv_to_notices.csv";
+const csvFilePath = "data/notices.csv";
 generateNoticesFromCsv(csvFilePath);
