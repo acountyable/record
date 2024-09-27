@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "generate-notices": "deno run --allow-read --allow-write scripts/csv_to_notices.ts"
+  }
+}

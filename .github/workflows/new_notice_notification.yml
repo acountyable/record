@@ -1,0 +1,68 @@
+name: New Notice Notification and CSV Processing
+on:
+  push:
+    paths:
+      - 'data/notices.csv'
+  workflow_dispatch:
+
+jobs:
+  process-csv-and-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Process CSV and Generate Notices
+        run: |
+          deno run --allow-read --allow-write scripts/csv_to_notices.ts
+      - name: Commit New Notices
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add notices/
+          git commit -m "Add new notices from CSV" || echo "No changes to commit"
+          git push
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v23
+      - name: Notify subscribers
+        run: |
+          # TODO: Implement notification logic
+          # This script should:
+          # 1. Parse the list of changed files
+          # 2. For each new notice, find the corresponding subscription issue
+          # 3. Comment on the issue with details of the new notice
+          echo "Implement notification logic here"
+          echo "Changed files:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+
+# File: .github/workflows/update_index.yml
+
+name: Update Index
+on:
+  push:
+    paths:
+      - 'notices/**'
+  workflow_dispatch:
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Update index.md
+        run: |
+          deno run --allow-read --allow-write scripts/update_index.ts
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add index.md
+          git commit -m "Update index" || echo "No changes to commit"
+          git push
