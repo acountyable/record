@@ -2,22 +2,60 @@ import { parse } from "jsr:@std/csv";
 import { join } from "jsr:@std/path";
 import { ensureDir } from "jsr:@std/fs";
 
+/**
+ * Interface representing the structure of notice data parsed from CSV.
+ */
 interface NoticeData {
+  /** The name of the direct party involved in the notice. */
   DirectName: string;
+  
+  /** The name of the indirect party involved in the notice. */
   IndirectName: string;
+  
+  /** The number of pages in the document. */
   NumberOfPages: string;
+  
+  /** The unique identifier for the instrument associated with the notice. */
   InstrumentNumber: string;
+  
+  /** A description of the document type. */
   DocTypeDescription: string;
+  
+  /** Additional comments related to the notice. */
   Comments2: string;
+  
+  /** The date the document was recorded. */
   RecordDate: string;
+  
+  /** The parcel number associated with the property. */
   ParcelNumber: string;
+  
+  /** The legal description of the property. */
   DocLegalDescription: string;
+  
+  /** The consideration amount related to the notice. */
   Consideration: string;
 }
 
+/**
+ * Generates notices from a CSV file and saves them as markdown files.
+ * 
+ * @param csvFilePath - The path to the CSV file containing notice data.
+ */
 async function generateNoticesFromCsv(csvFilePath: string) {
   const csvContent = await Deno.readTextFile(csvFilePath);
-  const records = parse(csvContent, { skipFirstRow: true, columns: true }) as NoticeData[];
+  const records = parse(csvContent, { skipFirstRow: true, columns: [
+    "DirectName",
+    "IndirectName",
+    "NumberOfPages",
+    "InstrumentNumber",
+    "DocTypeDescription",
+    "Comments2",
+    "RecordDate",
+    "ParcelNumber",
+    "DocLegalDescription",
+    "Consideration",
+  ] }) as unknown as NoticeData[];
 
   for (const record of records) {
     const parcelDir = join("notices", record.ParcelNumber);
