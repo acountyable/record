@@ -12,7 +12,7 @@ jobs:
   process-csv-and-notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
@@ -38,5 +38,29 @@ jobs:
           # 2. For each new notice, find the corresponding subscription issue
           # 3. Comment on the issue with details of the new notice
           echo "Implement notification logic here"
+          echo "Sending email to county-record@find.how"
+          echo "Subject: New Notices Generated"
+          echo "Body: New notices have been generated and added to the repository."
+          # When ready (uses: dawidd6/action-send-mail@v3.12.0)
           echo "Changed files:"
           echo "${{ steps.changed-files.outputs.all_changed_files }}"
+
+  update_index:
+    runs-on: ubuntu-latest
+    needs: process-csv-and-notify
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Update index.md
+        run: |
+          deno run --allow-read --allow-write scripts/update_index.ts
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add index.md
+          git commit -m "Update index" || echo "No changes to commit"
+          git push
