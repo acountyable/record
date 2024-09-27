@@ -60,11 +60,12 @@ async function generateNoticesFromCsv(csvFilePath: string) {
   for (const record of records) {
     const parcelDir = join("notices", record.ParcelNumber);
     await ensureDir(parcelDir);
+    const formattedDate = new Date(record.RecordDate).toISOString().split('T')[0]; // Format the date as YYYY-MM-DD
+    const fileName = `${record.InstrumentNumber}.md`; // Use InstrumentNumber as the file name
+    const noticeDir = join(parcelDir, `${formattedDate}_${record.DocTypeDescription.replace(/\s+/g, '_')}`);
+    await ensureDir(noticeDir);
 
-    const recordDate = new Date(record.RecordDate);
-    const formattedDate = `${recordDate.getFullYear()}-${String(recordDate.getMonth() + 1).padStart(2, '0')}-${String(recordDate.getDate()).padStart(2, '0')}`;
-    const fileName = `${formattedDate}_${record.DocTypeDescription.replace(/\s+/g, '_')}.md`;
-    const filePath = join(parcelDir, fileName);
+    const filePath = join(noticeDir, fileName);
 
     const noticeContent = `---
 Direct Name: ${record.DirectName}
